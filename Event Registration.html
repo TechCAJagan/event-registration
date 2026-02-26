@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!-- saved from url=(0036)file:///C:/Users/PKP/Desktop/HH.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Event Registration</title>
+
+<style>
+body{font-family:Arial;text-align:center;margin-top:40px;}
+        .container {
+            background: white;
+            width: 420px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+input,select{padding:8px;margin:5px;}
+button{padding:10px 20px;background:green;color:white;border:none;cursor:pointer;}
+.hidden{display:none;}
+.row{display:flex;justify-content:center;gap:10px;}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>🌻 HH's ART UNPLUGGED 🌻</h2>
+<h4> An immersive artistic journey </h4>
+
+<p>Total Slots Left: <b id="totalSlots">40</b></p>
+<p>Early Bird Slots Left: <b id="earlySlots">3</b></p>
+<p>Group Booking Slots Left: <b id="groupSlots">2</b></p>
+
+<br>
+
+<select id="bookingType" onchange="toggleFields()">
+    <option value="single">Single (₹40)</option>
+    <option value="early">Early Bird (₹35)</option>
+    <option value="group">Group of 3 (₹30/person)(Discounted)</option>
+</select>
+
+<br><br>
+
+<div id="singleFields" class="hidden">
+    <div class="row">
+        <input type="text" id="name1" placeholder="Name">
+        <input type="text" id="phone1" placeholder="Mail ID for certificate">
+    </div>
+</div>
+
+<div id="groupFields" class="">
+    <div class="row">
+        <input type="text" id="name2" placeholder="Name 1">
+        <input type="text" id="phone2" placeholder="Mail ID for certificate">
+    </div>
+    <div class="row">
+        <input type="text" id="name3" placeholder="Name 2">
+        <input type="text" id="phone3" placeholder="Mail ID for certificate">
+    </div>
+    <div class="row">
+        <input type="text" id="name4" placeholder="Name 3">
+        <input type="text" id="phone4" placeholder="Mail ID for certificate">
+    </div>
+</div>
+
+<br>
+<button onclick="book()">Book Now</button>
+
+<p id="msg"></p>
+
+</div>
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbxqBceG8dAgkYrpylnMzWoYwtw529rDo0oD0I4ujgqdAAeFuWJ80j6JtzK13zmmJnbq/exec";
+
+window.onload = function(){
+    loadAvailability();
+};
+
+function loadAvailability(){
+    fetch(scriptURL)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("totalSlots").innerText = data.totalRemaining;
+        document.getElementById("earlySlots").innerText = data.earlyRemaining;
+        document.getElementById("groupSlots").innerText = data.groupRemaining;
+    });
+}
+
+function toggleFields(){
+    let type = document.getElementById("bookingType").value;
+    if(type === "group"){
+        document.getElementById("singleFields").classList.add("hidden");
+        document.getElementById("groupFields").classList.remove("hidden");
+    } else {
+        document.getElementById("singleFields").classList.remove("hidden");
+        document.getElementById("groupFields").classList.add("hidden");
+    }
+}
+
+function book(){
+
+    let type = document.getElementById("bookingType").value;
+    let msg = document.getElementById("msg");
+
+    let data = {
+        type: type,
+        name1: document.getElementById("name1")?.value,
+        phone1: document.getElementById("phone1")?.value,
+        name2: document.getElementById("name2")?.value,
+        phone2: document.getElementById("phone2")?.value,
+        name3: document.getElementById("name3")?.value,
+        phone3: document.getElementById("phone3")?.value,
+        name4: document.getElementById("name4")?.value,
+        phone4: document.getElementById("phone4")?.value
+    };
+
+    fetch(scriptURL, {
+        method:"POST",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(response => {
+
+        if(response.status === "error"){
+            msg.innerText = response.message;
+            msg.style.color = "red";
+            return;
+        }
+
+        msg.innerText = "Booking Successful!";
+        msg.style.color = "green";
+        loadAvailability();
+    });
+}
+
+</script>
+
+
+</body></html>
