@@ -30,6 +30,21 @@ button{padding:10px 20px;background:green;color:white;border:none;cursor:pointer
 .hidden{display:none;}
 .row{display:flex;justify-content:center;gap:10px;}
 
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid green;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 10px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+    
 </style>
 
 </head>
@@ -77,7 +92,12 @@ button{padding:10px 20px;background:green;color:white;border:none;cursor:pointer
 </div>
 
 <br>
-<button onclick="book()">Book Now</button>
+<button id="bookBtn" onclick="book()">Book Now</button>
+
+<div id="loader" style="display:none;">
+    <div class="loader"></div>
+    <p>Processing booking...</p>
+</div>
 
 <p id="msg"></p>
 
@@ -115,6 +135,13 @@ function book(){
 
     let type = document.getElementById("bookingType").value;
     let msg = document.getElementById("msg");
+    let loader = document.getElementById("loader");
+    let button = document.getElementById("bookBtn");
+
+    msg.innerText = "";
+    loader.style.display = "block";     // ✅ show loader
+    button.disabled = true;            // ✅ disable button
+    button.style.opacity = "0.6";
 
     let data = {
         type: type,
@@ -135,6 +162,10 @@ function book(){
     .then(res => res.json())
     .then(response => {
 
+        loader.style.display = "none";   // ✅ hide loader
+        button.disabled = false;
+        button.style.opacity = "1";
+
         if(response.status === "error"){
             msg.innerText = response.message;
             msg.style.color = "red";
@@ -144,6 +175,13 @@ function book(){
         msg.innerText = "Booking Successful!";
         msg.style.color = "green";
         loadAvailability();
+    })
+    .catch(() => {
+        loader.style.display = "none";
+        button.disabled = false;
+        button.style.opacity = "1";
+        msg.innerText = "Network error. Try again.";
+        msg.style.color = "red";
     });
 }
 
